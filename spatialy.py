@@ -189,7 +189,7 @@ def finishgame():
 	gameovertext = gameoverfont.render("GAME OVER",1,WHITE)
 	textpos = gameovertext.get_rect(centerx=SCREEN_WIDTH/2,centery=SCREEN_HEIGHT/2)
 	screen.blit(gameovertext, textpos)	
-	pygame.display.update()
+	pygame.display.flip()
 
 	while 1:
 		pygame.event.get()
@@ -234,9 +234,9 @@ PLAYER_MOVESPEED = 8
 pygame.init()
 pygame.mixer.init()
 pygame.mouse.set_visible(False)
-screen = pygame.display.set_mode((1920, 1080), pygame.RESIZABLE)
+screen = pygame.display.set_mode((1920, 1080), pygame.FULLSCREEN)
 screen.fill(BLACK)
-pygame.display.update()
+pygame.display.flip()
 
 boostduration = 50
 score = 1000
@@ -333,17 +333,6 @@ hitsound = pygame.mixer.Sound("hitsound.ogg")
 hitsound.set_volume(0.75)
 megabombsound = pygame.mixer.Sound("megabomb.ogg")
 laserbeamsound = pygame.mixer.Sound("laserbeam.ogg")
-
-print("Okay, first let's configure the joystick!")
-joysticks = [pygame.joystick.Joystick(x) for x in range(pygame.joystick.get_count())]
-number_of_joysticks = pygame.joystick.get_count()
-print("Number of joysticks: ", number_of_joysticks)
-if number_of_joysticks > 0:
-	joystick = pygame.joystick.Joystick(0)
-	print("Number of joystick axes: ", joystick.get_numaxes())
-	print("Joystick instance ID: ", joystick.get_instance_id())
-	print("Joystick name: ", joystick.get_name())
-	print("Number of buttons: ", joystick.get_numbuttons())
 	
 #	done = False
 #	while not done:
@@ -393,12 +382,11 @@ while True:
 			sys.exit()
 	
 	#Handle key presses for shaking the screen:
-	if (keypresses[pygame.K_LALT] or joystick.get_button(0)) and not shakescreen and not gameover and megabombs > 0 and oh == 0 and secweapchoice == 0:
+	if (keypresses[pygame.K_LALT]) and not shakescreen and not gameover and megabombs > 0 and oh == 0 and secweapchoice == 0:
 		oh = 100
 		shakescreen = True
 		megabombs -= 1
 		megabombsound.play()
-		joystick.rumble(100, 100, 1000)
 		score += 1000*len(enemylist)
 		for enemy in enemylist:
 			pygame.draw.rect(screen, BLACK, ((enemy.x,enemy.y),(enemy.width,enemy.height)))
@@ -413,10 +401,10 @@ while True:
 		print("Number of enemies left after shake: ", len(enemylist))
 	
 	#Handle key presses for movement:
-	if keypresses[pygame.K_UP] or keypresses[pygame.K_DOWN] or keypresses[pygame.K_LEFT] or keypresses[pygame.K_RIGHT] or math.fabs(joystick.get_axis(0)) > 0.01 or math.fabs(joystick.get_axis(1)) > 0.01 and not gameover:
+	if keypresses[pygame.K_UP] or keypresses[pygame.K_DOWN] or keypresses[pygame.K_LEFT] or keypresses[pygame.K_RIGHT] and not gameover:
 		if currenttime - lastmovetime > movedelay:
 			lastmovetime = currenttime
-			if keypresses[pygame.K_RIGHT] and keypresses[pygame.K_UP] or (joystick.get_axis(0) > 0.01 and joystick.get_axis(1) < -0.01):
+			if keypresses[pygame.K_RIGHT] and keypresses[pygame.K_UP]:
 				if keypresses[pygame.K_s] and currenttime - lastboosttime > boostdelay:
 					lastboosttime = currenttime
 					playerobject.boostdestination_x = playerobject.x+BOOST_DISPLACEMENT*diagonaladjust
@@ -429,7 +417,7 @@ while True:
 				else:
 					playerobject.moveup(PLAYER_MOVESPEED*diagonaladjust)
 					playerobject.moveright(PLAYER_MOVESPEED*diagonaladjust)
-			elif keypresses[pygame.K_RIGHT] and keypresses[pygame.K_DOWN] or (joystick.get_axis(0) > 0.01 and joystick.get_axis(1) > 0.01):
+			elif keypresses[pygame.K_RIGHT] and keypresses[pygame.K_DOWN]:
 				if keypresses[pygame.K_s] and currenttime - lastboosttime > boostdelay:
 					lastboosttime = currenttime
 					playerobject.boostdestination_x = playerobject.x+BOOST_DISPLACEMENT*diagonaladjust
@@ -442,7 +430,7 @@ while True:
 				else:
 					playerobject.movedown(PLAYER_MOVESPEED*diagonaladjust)
 					playerobject.moveright(PLAYER_MOVESPEED*diagonaladjust)
-			elif keypresses[pygame.K_LEFT] and keypresses[pygame.K_UP] or (joystick.get_axis(0) < -0.01 and joystick.get_axis(1) < -0.01):
+			elif keypresses[pygame.K_LEFT] and keypresses[pygame.K_UP]:
 				if keypresses[pygame.K_s] and currenttime - lastboosttime > boostdelay:
 					lastboosttime = currenttime
 					playerobject.boostdestination_x = playerobject.x-BOOST_DISPLACEMENT*diagonaladjust
@@ -455,7 +443,7 @@ while True:
 				else:
 					playerobject.moveup(PLAYER_MOVESPEED*diagonaladjust)
 					playerobject.moveleft(PLAYER_MOVESPEED*diagonaladjust)
-			elif keypresses[pygame.K_LEFT] and keypresses[pygame.K_DOWN] or (joystick.get_axis(0) < -0.01 and joystick.get_axis(1) > 0.01):
+			elif keypresses[pygame.K_LEFT] and keypresses[pygame.K_DOWN]:
 				if keypresses[pygame.K_s] and currenttime - lastboosttime > boostdelay:
 					lastboosttime = currenttime
 					playerobject.boostdestination_x = playerobject.x-BOOST_DISPLACEMENT*diagonaladjust
@@ -468,7 +456,7 @@ while True:
 				else:
 					playerobject.movedown(PLAYER_MOVESPEED*diagonaladjust)
 					playerobject.moveleft(PLAYER_MOVESPEED*diagonaladjust)
-			elif keypresses[pygame.K_UP] or joystick.get_axis(1) < -0.01:
+			elif keypresses[pygame.K_UP]:
 				if keypresses[pygame.K_s] and currenttime - lastboosttime > boostdelay:
 					lastboosttime = currenttime
 					playerobject.boostdestination_y = playerobject.y-BOOST_DISPLACEMENT
@@ -477,7 +465,7 @@ while True:
 					playerobject.boosting = True
 				else:
 					playerobject.moveup(PLAYER_MOVESPEED)
-			elif keypresses[pygame.K_DOWN] or joystick.get_axis(1) > 0.01:
+			elif keypresses[pygame.K_DOWN]:
 				if keypresses[pygame.K_s] and currenttime - lastboosttime > boostdelay:
 					lastboosttime = currenttime
 					playerobject.boostdestination_y = playerobject.y+BOOST_DISPLACEMENT
@@ -486,7 +474,7 @@ while True:
 					playerobject.boosting = True
 				else:
 					playerobject.movedown(PLAYER_MOVESPEED)
-			elif keypresses[pygame.K_LEFT] or joystick.get_axis(0) < -0.01:
+			elif keypresses[pygame.K_LEFT]:
 				if keypresses[pygame.K_s] and currenttime - lastboosttime > boostdelay:
 					lastboosttime = currenttime
 					playerobject.boostdestination_x = playerobject.x-BOOST_DISPLACEMENT
@@ -495,7 +483,7 @@ while True:
 					playerobject.boosting = True
 				else:
 					playerobject.moveleft(PLAYER_MOVESPEED)
-			elif keypresses[pygame.K_RIGHT] or joystick.get_axis(0) > 0.01:
+			elif keypresses[pygame.K_RIGHT]:
 				if keypresses[pygame.K_s] and currenttime - lastboosttime > boostdelay:
 					lastboosttime = currenttime
 					playerobject.boostdestination_x = playerobject.x+BOOST_DISPLACEMENT
@@ -513,7 +501,7 @@ while True:
 			thrustsound.stop()
 	
 	#Handle key presses for firing:
-	if keypresses[pygame.K_LCTRL] or joystick.get_button(2) and not gameover:
+	if keypresses[pygame.K_LCTRL] and not gameover:
 		if oh == 0:
 		#if currenttime - lastfiretime > firedelay:
 			oh = 9
@@ -530,7 +518,7 @@ while True:
 			f_updatetime = currenttime
 			projectilelist.append(Projectile(f_x, f_y, f_width, f_height, f_v, f_sprite, f_updatetime, True))
 			firesound.play()
-	if (keypresses[pygame.K_LALT] or joystick.get_button(3)) and not gameover and (not laseron) and oh == 0 and secweapchoice == 1 and lasershots > 0:
+	if keypresses[pygame.K_LALT] and not gameover and (not laseron) and oh == 0 and secweapchoice == 1 and lasershots > 0:
 		laserbeamsound.play()
 		lasershots -= 1
 		oh = 75
@@ -538,7 +526,7 @@ while True:
 		laseron = True
 	
 	#Handle key presses for changing direction:
-	if (keypresses[pygame.K_LSHIFT] or joystick.get_button(4) or joystick.get_button(5)) and not gameover:
+	if (keypresses[pygame.K_LSHIFT]) and not gameover:
 		if currenttime - lastinverttime > invertdelay:
 			lastinverttime = currenttime
 			pygame.draw.rect(screen, BLACK, ((playerobject.x,playerobject.y),(playerobject.width,playerobject.height)))
@@ -824,5 +812,5 @@ while True:
 				screen = screenbackup
 				shakescreen = False
 	
-	pygame.display.update()
+	pygame.display.flip()
 
